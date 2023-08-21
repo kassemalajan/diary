@@ -1,0 +1,50 @@
+const int RELAY1= 3;
+const int RELAY2= 4;
+const int RELAY3= 5;
+#include <dht11.h>
+
+#define DHT11PIN 7
+dht11 DHT11;
+
+int soil =0;
+void setup(){
+  //the setup for the three relays heater,fan and waterpump
+  pinMode(RELAY1, OUTPUT);
+  pinMode(RELAY2, OUTPUT);
+  pinMode(RELAY3, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop(){
+  //reads the soilmoisture sensor
+  soilM = analogRead(A0);
+  //reading the humidity and temperature levels
+  int chk = DHT11.read(DHT11PIN);
+  //Printing the soil moisture levels on the serial
+  Serial.print("Soil moisture = ");
+  Serial.println(soilM);
+  //Printing the temperature levels on the serial
+  Serial.print("Temperature % = ");
+  Serial.println(DHT11.temperature);
+  //Printing the humidity levels on the serial
+  Serial.print("Humidity % = ");
+  Serial.println(DHT11.humidity);
+  //turning on/off the relay based on soil moisture levels
+  if (soilM > 900){
+    digitalWrite(RELAY1, HIGH);}
+  else
+    digitalWrite(RELAY1, LOW);
+    delay(1000);
+  //turning on/off the relay based on temperature levels
+  if (DHT11.temperature > 17){
+    digitalWrite(RELAY2, HIGH);}
+  else
+    digitalWrite(RELAY2, LOW);
+    delay(1000);
+  //turning on/off the relay based on humidity levels
+  if (DHT11.humidity > 60){
+    digitalWrite(RELAY3, HIGH);}
+  else
+    digitalWrite(RELAY3, LOW);
+    delay(500);    
+}
