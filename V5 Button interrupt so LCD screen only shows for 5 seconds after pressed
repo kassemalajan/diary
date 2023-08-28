@@ -1,0 +1,100 @@
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+const int RELAY1= 3;
+const int RELAY2= 4;
+const int RELAY3= 5;
+const int SOIL_PIN = A0;
+const int BUTTON_ONE = 2;
+int screenState;
+
+#include <dht11.h>
+#define DHT11PIN 7
+dht11 DHT11;
+
+void setup(){
+  //setting up the screen\/\/
+  lcd.init();
+  //the setup for the three relays\/\/
+  pinMode(RELAY1, OUTPUT);
+  pinMode(RELAY2, OUTPUT);
+  pinMode(RELAY3, OUTPUT);
+  pinMode(BUTTON_ONE, INPUT_PULLUP);
+  Serial.begin(9600);
+
+attachInterrupt(digitalPinToInterrupt(BUTTON_ONE),LCD,RISING);
+ 
+}
+
+void loop(){
+  //reading the soilmoisture sensor and converting to percentage\/\/
+  int soil;
+  float soil_percentage;
+  soil = analogRead(SOIL_PIN);
+  soil_percentage = ( 100 - ( (soil/1023.00) * 100 ) );
+  //reading the humidity and temperature levels\/\/
+  int chk = DHT11.read(DHT11PIN);
+  //Printing the soil moisture levels on the serial\/\/
+  Serial.print("Soil moisture = ");
+  Serial.println(soil_percentage);
+  Serial.print("%");
+  //Printing the temperature levels on the serial\/\/
+  Serial.print("Temperature % = ");
+  Serial.println(DHT11.temperature);
+  //Printing the humidity levels on the serial\/\/
+  Serial.print("Humidity % = ");
+  Serial.println(DHT11.humidity);
+  //turning on/off the relay based on soil moisture levels\/\/
+  if (soil_percentage < 20){
+    digitalWrite(RELAY1, HIGH);}
+  else
+    digitalWrite(RELAY1, LOW);
+  //turning on/off the relay based on temperature levels\/\/
+  if (DHT11.temperature > 17){
+    digitalWrite(RELAY2, HIGH);}
+  else
+    digitalWrite(RELAY2, LOW);
+
+  //turning on/off the relay based on humidity levels\/\/
+  if (DHT11.humidity > 60){
+    digitalWrite(RELAY3, HIGH);}
+  else
+    digitalWrite(RELAY3, LOW);
+  delay(500);
+ 
+  //writing on the first line of the LCD screen\/\/
+  lcd.setCursor(2,0);  
+  lcd.print("T:");
+  lcd.print(DHT11.temperature);
+  lcd.print("C   ");
+  lcd.print("H:");
+  lcd.print(DHT11.humidity);
+  lcd.print("%");
+  //writing on the second line\/\/
+  lcd.setCursor(2,1);
+  lcd.print("SM:");
+  lcd.print(soil_percentage);
+  lcd.print("%");
+
+  if (BUTTONPRESSED()){
+    lcd.display();
+    lcd.backlight();
+    delay(5000);
+  }
+    else {
+      lcd.noDisplay();
+      lcd.noBacklight();
+    }
+}
+bool BUTTONPRESSED(){
+  int buttonState = digitalRead(BUTTON_ONE);
+  if (buttonState == 0){
+    return true;
+  }
+  else
+    return false;
+ 
+}
+
+void LCD(){
+  screenState=!screenState;
+}
