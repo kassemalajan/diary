@@ -1,14 +1,21 @@
-//Arduino Code - Soil Moisture
- 
-int Moisture_signal = A5; //Define the Analog pin# on the Arduino for the soil moisture sensor signal
- 
+// Arduino Code - Soil Moisture
+
+// Define the Analog pin on the Arduino for the soil moisture sensor signal
+int Moisture_signal = A5;
+
 void setup() {
-  Serial.begin(9600); // Start the serial communication
+  // Start the serial communication at a baud rate of 9600
+  Serial.begin(9600);
 }
- 
+
 void loop() {
+  // Read the analog value from the soil moisture sensor
   int Moisture = analogRead(Moisture_signal);
+  
+  // Print the soil moisture level to the serial monitor
   Serial.print("Soil Moisture Level: ");
   Serial.println(Moisture);
+  
+  // Delay for 200 milliseconds to avoid rapid serial output
   delay(200);
 }
