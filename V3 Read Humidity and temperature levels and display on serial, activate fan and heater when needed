@@ -1,50 +1,69 @@
-const int RELAY1= 3;
-const int RELAY2= 4;
-const int RELAY3= 5;
+// Define constants for relay pins (connected to heater, fan, and water pump)
+const int RELAY1 = 3;
+const int RELAY2 = 4;
+const int RELAY3 = 5;
+
+// Include the DHT11 library for reading humidity and temperature
 #include <dht11.h>
 
+// Define the pin for the DHT11 sensor
 #define DHT11PIN 7
+
+// Create an instance of the DHT11 sensor
 dht11 DHT11;
 
-int soil =0;
-void setup(){
-  //the setup for the three relays heater,fan and waterpump
-  pinMode(RELAY1, OUTPUT);
-  pinMode(RELAY2, OUTPUT);
-  pinMode(RELAY3, OUTPUT);
-  Serial.begin(9600);
+// Declare a variable to store soil moisture readings
+int soil = 0;
+
+void setup() {
+  // Setup the Arduino
+  pinMode(RELAY1, OUTPUT);  // Relay for heater
+  pinMode(RELAY2, OUTPUT);  // Relay for fan
+  pinMode(RELAY3, OUTPUT);  // Relay for water pump
+  
+  Serial.begin(9600);      // Initialize serial communication
 }
 
-void loop(){
-  //reads the soilmoisture sensor
-  soilM = analogRead(A0);
-  //reading the humidity and temperature levels
+void loop() {
+  // Read the soil moisture sensor
+  soil = analogRead(A0);
+  
+  // Read humidity and temperature levels from the DHT11 sensor
   int chk = DHT11.read(DHT11PIN);
-  //Printing the soil moisture levels on the serial
+  
+  // Print soil moisture levels on the serial monitor
   Serial.print("Soil moisture = ");
-  Serial.println(soilM);
-  //Printing the temperature levels on the serial
+  Serial.println(soil);
+  
+  // Print temperature levels on the serial monitor
   Serial.print("Temperature % = ");
   Serial.println(DHT11.temperature);
-  //Printing the humidity levels on the serial
+  
+  // Print humidity levels on the serial monitor
   Serial.print("Humidity % = ");
   Serial.println(DHT11.humidity);
-  //turning on/off the relay based on soil moisture levels
-  if (soilM > 900){
-    digitalWrite(RELAY1, HIGH);}
-  else
-    digitalWrite(RELAY1, LOW);
-    delay(1000);
-  //turning on/off the relay based on temperature levels
-  if (DHT11.temperature > 17){
-    digitalWrite(RELAY2, HIGH);}
-  else
-    digitalWrite(RELAY2, LOW);
-    delay(1000);
-  //turning on/off the relay based on humidity levels
-  if (DHT11.humidity > 60){
-    digitalWrite(RELAY3, HIGH);}
-  else
-    digitalWrite(RELAY3, LOW);
-    delay(500);    
+  
+  // Control the relay connected to the heater based on soil moisture levels
+  if (soil > 900) {
+    digitalWrite(RELAY1, HIGH);  // Turn on the heater relay
+  } else {
+    digitalWrite(RELAY1, LOW);   // Turn off the heater relay
+  }
+  delay(1000);  // Delay for stability
+  
+  // Control the relay connected to the fan based on temperature levels
+  if (DHT11.temperature > 17) {
+    digitalWrite(RELAY2, HIGH);  // Turn on the fan relay
+  } else {
+    digitalWrite(RELAY2, LOW);   // Turn off the fan relay
+  }
+  delay(1000);  // Delay for stability
+  
+  // Control the relay connected to the water pump based on humidity levels
+  if (DHT11.humidity > 60) {
+    digitalWrite(RELAY3, HIGH);  // Turn on the water pump relay
+  } else {
+    digitalWrite(RELAY3, LOW);   // Turn off the water pump relay
+  }
+  delay(500);  // Delay for stability
 }
