@@ -1,21 +1,29 @@
+// Define the pin for the relay
 const int RELAY_PIN = 3;
 
-int soilLevel =0;
-void setup(){
-  pinMode(RELAY_PIN, OUTPUT);
-  Serial.begin(9600);
+// Declare a variable to store soil moisture readings
+int soilLevel = 0;
+
+void setup() {
+  // Setup the Arduino
+  pinMode(RELAY_PIN, OUTPUT);  // Configure RELAY_PIN as an output
+  Serial.begin(9600);         // Initialize serial communication
 }
 
-void loop(){
+void loop() {
+  // Read the soil moisture sensor
   soilLevel = analogRead(A0);
-
+  
+  // Print soil moisture levels on the serial monitor
   Serial.print("Soil moisture = ");
   Serial.println(soilLevel);
  
-  if (soil > 800){
-    digitalWrite(RELAY_PIN, HIGH);
+  // Control the relay based on soil moisture levels
+  if (soilLevel > 800) {
+    digitalWrite(RELAY_PIN, HIGH);  // Turn on the relay
+  } else {
+    digitalWrite(RELAY_PIN, LOW);   // Turn off the relay
   }
-  else
-    digitalWrite(RELAY_PIN, LOW);
-    delay(1000);
+  
+  delay(1000);  // Delay for stability and to avoid rapid relay toggling
 }
