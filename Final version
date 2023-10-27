@@ -1,0 +1,73 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+const int BUTTON = 2;
+const int RELAY= 5;
+const int SOIL_PIN = A0;
+LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
+unsigned long buttonOnTime;
+int screenState;
+float soil_percentage;
+void setup(){
+   //setting up the screen
+  lcd.init();
+  lcd.backlight();
+  //the setup for the three relays and button
+   pinMode(RELAY, OUTPUT);
+  pinMode(BUTTON, INPUT_PULLUP);
+  //start the serial output
+  Serial.begin(9600);
+  //set the button pin to be an interupt
+  attachInterrupt(digitalPinToInterrupt(BUTTON), LCD, RISING);
+}
+void loop(){
+    //reading soilmoisture levels and converting to percentage
+  int soil;
+  soil = analogRead(SOIL_PIN);
+  soil_percentage = ( 100 - ( (soil/1023.00) * 100 ) );
+  //Printing soil moisture levels on serial
+  Serial.print("Soil moisture = ");
+  Serial.println(soil_percentage);
+  Serial.print("%");
+  //turning on/off the relay
+  if (soil_percentage < 20){
+    digitalWrite(RELAY, HIGH);}
+  else
+    digitalWrite(RELAY, LOW);
+//asking if it has been 5 seconds since last button press 
+  if (millis()-buttonOnTime <5000){
+    screenOn();
+    infoDisplay();
+    }
+  else
+      screenOff();
+    delay; 10;
+}
+//Turns the screen off
+void screenOff() {
+  lcd.noDisplay();
+  lcd.noBacklight();
+}
+//Turns the screen on
+void screenOn() {
+  lcd.display();
+  lcd.backlight();
+}
+//Displays info on the screen
+void infoDisplay() {
+  //first line
+  lcd.setCursor(2, 0);
+  lcd.print("T:");
+  lcd.print("...");
+  lcd.print("C   ");
+  lcd.print("H:");
+  lcd.print("...");
+  lcd.print("%");
+  //second line
+  lcd.setCursor(2, 1);
+  lcd.print("SM:");
+  lcd.print(soil_percentage);
+  lcd.print("%");
+}
+void LCD(){
+  buttonOnTime = millis();
+}
