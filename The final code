@@ -1,0 +1,85 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Initialize the LCD display with address 0x27, 16x2 format
+
+// Define pin constants
+const int BUTTON_PIN = 2;      // Button input pin
+const int RELAY_PIN = 5;       // Relay control pin
+const int SOIL_PIN = A0;       // Soil moisture sensor analog pin
+float soilPercentage;          // Variable to store soil moisture percentage
+unsigned long buttonOnTime;    // Time when the button was last pressed
+
+
+void setup() {
+  // Setting up the screen
+  lcd.init();
+  lcd.backlight();
+
+  // Setup for the three relays and button
+  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(BUTTON_PIN , INPUT_PULLUP);
+
+  // Start the serial output
+  Serial.begin(9600);
+
+  // Set the button pin to trigger an interrupt
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN ), buttonInterrupt, RISING);
+}
+
+void loop() {
+  // Reading soil moisture levels and converting to percentage
+  int soilValue = analogRead(SOIL_PIN );
+  soilPercentage = 100 - ((soilValue / 1023.00) * 100);
+
+  // Printing soil moisture levels on the serial monitor
+  Serial.print("Soil Moisture = ");
+  Serial.println(soilPercentage);
+  Serial.print("%");
+
+  // Turning on/off the relay based on soil moisture level
+  if (soilPercentage < 20) {
+    digitalWrite(RELAY_PIN, HIGH);  // Turn on the relay
+  } else {
+    digitalWrite(RELAY_PIN, LOW);   // Turn off the relay
+  }
+
+  // Check if it has been 5 seconds since the last button press
+  if (millis() - buttonOnTime < 5000) {
+    screenOn();
+    infoDisplay();
+  } else {
+    screenOff();
+  }
+  delay(10);  // Short delay for stability
+}
+
+// Function to turn the screen off
+void screenOff() {
+  lcd.noDisplay();
+  lcd.noBacklight();
+}
+
+// Function to turn the screen on
+void screenOn() {
+  lcd.display();
+  lcd.backlight();
+}
+
+// Function to display information on the screen
+void infoDisplay() {
+  // First line
+  lcd.setCursor(2, 0);
+  lcd.print("T:...C   H:...%");
+
+  // Second line
+  lcd.setCursor(2, 1);
+  lcd.print("SM:");
+  lcd.print(soilPercentage);
+  lcd.print("%");
+}
+
+// Interrupt handler for button press
+void buttonInterrupt() {
+  buttonOnTime = millis();  // Record the time when the button was pressed
+}
+
